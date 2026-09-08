@@ -22,9 +22,10 @@ jobs:
         run: test "$(git rev-parse HEAD)" = bd84c913e0cc8f56ccee0dfc543258b3de63a747
       - name: Run full test target
         env:
-          CONSOLE_CMD: '"mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
+          CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
         run: |
           set -o pipefail
+          mkdir -p secrets
           make test-full 2>&1 | tee /tmp/volcano-full-test.log
           grep -E 'console-1[[:space:]]*\|[[:space:]]*VOLCANO_FULL_TEST_COMPLETED' /tmp/volcano-full-test.log
           grep -E '[1-9][0-9]* tests?, 0 failures' /tmp/volcano-full-test.log
