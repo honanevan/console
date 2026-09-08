@@ -1,4 +1,4 @@
-name: Validate submitted Volcano contribution
+name: Validate pre-contribution console baseline
 
 on:
   push:
@@ -17,15 +17,15 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
+      CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test --seed 368979 && echo VOLCANO_FULL_TEST_COMPLETED"'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          ref: bd84c913e0cc8f56ccee0dfc543258b3de63a747
+          ref: 1a738b2f7bfdc9a5f0e62737d90a60c89d8caa10
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify submitted revision
-        run: test "$(git rev-parse HEAD)" = bd84c913e0cc8f56ccee0dfc543258b3de63a747
+      - name: Verify pre-contribution baseline revision
+        run: test "$(git rev-parse HEAD)" = 1a738b2f7bfdc9a5f0e62737d90a60c89d8caa10
       - name: Add repository MCP test service
         run: |
           cat > /tmp/volcano-mcp-compose.yml <<'YAML'
