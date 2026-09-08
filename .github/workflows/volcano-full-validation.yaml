@@ -7,11 +7,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: volcano-full-validation
+  cancel-in-progress: true
+
 jobs:
   full-console:
     if: github.repository == 'honanevan/console'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -32,8 +38,6 @@ jobs:
           docker compose -f docker-compose.test.yml -f /tmp/volcano-mcp-compose.yml config > /tmp/volcano-compose.yml
           cp /tmp/volcano-compose.yml docker-compose.test.yml
       - name: Run full test target
-        env:
-          CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
         run: |
           set -o pipefail
           mkdir -p secrets
