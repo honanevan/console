@@ -20,6 +20,17 @@ jobs:
           persist-credentials: false
       - name: Verify submitted revision
         run: test "$(git rev-parse HEAD)" = bd84c913e0cc8f56ccee0dfc543258b3de63a747
+      - name: Add repository MCP test service
+        run: |
+          cat > /tmp/volcano-mcp-compose.yml <<'YAML'
+          services:
+            mcp:
+              image: tzolov/mcp-everything-server:v3
+              network_mode: service:console
+              command: [node, dist/index.js, streamableHttp]
+          YAML
+          docker compose -f docker-compose.test.yml -f /tmp/volcano-mcp-compose.yml config > /tmp/volcano-compose.yml
+          cp /tmp/volcano-compose.yml docker-compose.test.yml
       - name: Run full test target
         env:
           CONSOLE_CMD: '"git config --global --add safe.directory /app && mix deps.get && mix compile && mix test && echo VOLCANO_FULL_TEST_COMPLETED"'
