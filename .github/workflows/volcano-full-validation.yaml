@@ -1,0 +1,29 @@
+name: Validate submitted Volcano contribution
+
+on:
+  push:
+    branches: [codex/volcano-full-validation]
+
+permissions:
+  contents: read
+
+jobs:
+  full-console:
+    if: github.repository == 'honanevan/console'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: bd84c913e0cc8f56ccee0dfc543258b3de63a747
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify submitted revision
+        run: test "$(git rev-parse HEAD)" = bd84c913e0cc8f56ccee0dfc543258b3de63a747
+      - name: Run full test target
+        env:
+          CONSOLE_CMD: MIX_ENV=test mix deps.get && mix compile && mix test
+        run: make test-full
+      - name: Stop test services
+        if: always()
+        run: docker compose -f docker-compose.test.yml down
